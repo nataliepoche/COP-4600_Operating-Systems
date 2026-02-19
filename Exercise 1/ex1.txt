@@ -1,0 +1,51 @@
+Name
+	Exercise 1
+
+Synopsis
+	Getting used to Linux terminal commands.
+
+Description
+	introductory paragraph <optional>
+
+	/home/reptilian
+		how did you figure out this is the one to change
+		Given in the instructions
+
+		what did you change
+		Added and removed files
+
+		why did you make the changes
+		As per the instructions.
+
+	
+	command [-options] [-arguments]
+
+		How did you find out about this command?
+
+		What does this command do? Explain the options you used.
+
+		Why did you decide to use this command?
+
+TESTING
+
+	1) Create a directory with the name format last_first (e.g., "sanchez_richard") in /home/reptilian.
+	2) Issue a command to find files that contain the phrase "android_dev" from the kernel source directory.
+	3) Reissue the command from (2); this time, pipe the output of the command to a file named "output.txt".
+	4) Take a screenshot after running 'ls' arent directory of the file you found from (2).
+	5) Take a screenshot of the command and its result from (3).
+	6) Move or copy "output.txt" into the directory created in (1).
+	7) From /home/reptilian, create a tar file named ex1.tar of the directory from (1) (including contents).
+	8) Use gzip to compress ex1.tar (yielding ex1.tar.gz).
+
+BUGS
+	List any known bugs.
+
+LINK
+	link to screencast.
+
+
+REFERENCES/CITATIONS
+		Cite sources/references used to complete this
+
+AUTHOR
+        Natalie Poche

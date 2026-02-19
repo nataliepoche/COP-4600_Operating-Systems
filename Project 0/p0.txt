@@ -1,0 +1,96 @@
+.TH P0 1 "2026-02-04" "COP4600" "User Commands"
+.SH NAME
+Natalie Poche \- P0: My First Kernel Mod
+
+.SH SYNOPSIS
+Modify the Reptilian kernel boot sequence to display a custom log message and personal identifier. Generate a unified patch file and personalize the GRUB menu for extra credit.
+
+.SH DESCRIPTION
+This project involves modifying the Reptilian OS kernel to print a specific string during the boot process.
+
+.SS /usr/rep/src/reptilian-kernel/init/main.c
+.TP
+.B Identification
+Located via the requirement to find the 
+.I rcu_end_inkernel_boot()
+function.
+.TP
+.B Changes
+Inserted a 
+.I printk
+statement: printk(KERN_ERR "##### Natalie Poche (UFID: 1533-9442) Go Gators! #####"); with newlines inserted before and after the log message.
+.TP
+.B Logic
+Placed to execute just before "Detecting Reptilian system partition" to ensure visibility during default boot. Used KERN_ERR to ensure minimum level for log to display during boot.
+
+.SS /mnt/sysroot/grub/menu.lst (Extra Credit)
+.TP
+.B Identification
+Directly edited the configuration file using a text editor as mandated.
+.TP
+.B Changes
+Appended "(Natalie Poche)" to the default "Reptilian 20.08-A9.0-r2" menu entry.
+.TP
+.B Logic
+Personalizes the GRUB boot selection screen without using restricted GRUB utilities. Directory /mnt/sysroot/grub is android part that contains menu.lst [Cite: 2].
+
+.SH COMMANDS
+.SS grep -rn "rcu_end_inkernel_boot"
+.TP
+.B Source
+General Linux knowledge for searching files.
+.TP
+.B Function
+Recursively searches for the function call and displays the line number.
+.TP
+.B Rationale
+Used to pinpoint the exact location for code insertion as required by the project.
+
+.SS nano /usr/rep/src/reptilian-kernel/init/main.c
+.TP
+.B Source
+Referenced as a "text editor" in the project instructions.
+.TP
+.B Function
+Command-line text editor used to modify the kernel source and GRUB config.
+.TP
+.B Rationale
+Essential for inserting the custom log message and personalizing the GRUB menu.
+
+.SS git diff remotes/origin/os-latest > p0.diff
+.TP
+.B Source
+Provided in the project structure requirements.
+.TP
+.B Function
+Compares current code against the remote origin and redirects output to a patch file.
+.TP
+.B Rationale
+Standardizes the submission format for instructor verification.
+
+.SH TESTING
+.IP 1. 4
+Rebuilt with clean VM screenshot.
+.IP 2. 4
+Applied p0.diff in /usr/rep/src/reptilian-kernel directory.
+.IP 3. 4
+Ran make && sudo make install && sudo make modules_install in /usr/rep/src/reptilian-kernel
+.IP 4. 4
+Rebooted to verify the log appears in default mode (not verbose/debug).
+.IP 5. 4
+Confirmed the GRUB menu displays the extra credit name change.
+
+.SH BUGS
+No known bugs.
+
+.SH LINK
+https://youtu.be/dJ8oIGnQNPA
+
+.SH REFERENCES
+.IP [1] 4
+P0: My First Kernel Mod, COP4600, University of Florida.
+.IP [2] LINK
+https://www.cise.ufl.edu/research/reptilian/wiki/doku.php?id=architecture#:~:text=The%20Ubuntu%20partition%20is%20mapped,Ubuntu%20to%20%2Fmnt%2Fsysroot.
+
+.SH AUTHOR
+Natalie Poche
