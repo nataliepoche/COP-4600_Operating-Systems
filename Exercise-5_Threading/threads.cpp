@@ -1,21 +1,45 @@
-#include <thread>
 #include <iostream>
+#include <thread>
+#include <vector>
+#include <string>
+#include <cstdlib>
 
-void foo(int id) {
-    std::cout << "My id is " << id << std::endl;
+// Thread function that takes an ID and a target number
+void target_search(int id, int target){
+    // Continuously generate random numbers 0-9999
+    while(true){
+        int random = rand() % 10000;
+
+        // Checks if random number matches target
+        if (random == target){
+            std::cout << "Thread " << id << " completed.\n";
+            break; // Exit loop once target is found
+        }
+    }
 }
 
-int main(){
-    std::cout << "Spwaning a thread." << std::endl;
+int main(int argc, char* argv[]){
+    
+    // 1. Get target from command-line argument
+    // Assume target is valid, no check needed
+    int target = std::stoi(argv[1]);
 
-    // Create a thread. The first argument is the function that the thread should execute.
-    // The second argument will be passed to the function itself.
-    std::thread th1(foo, 4);
+    // Initialize vector to store and manage threads
+    std::vector<std::thread> threads;
 
-    // Wait for the threads to finish executing before continuing.
-    th1.join();
+    // 2. Spawn 10 threads inside a loop
+    for(int i = 0; i < 10; i++){
+        //Creaate a thread, passing function, the unique id (0-9), and target
+        threads.push_back(std::thread(target_search, i, target));
+    }
 
-    std::cout << "Thread has finished executing." << std::endl;
+    // Wait for all threads to finish execuing before continuing
+    for (int i = 0; i < 10; ++i){
+        threads[i].join();
+    }
+
+    // 3. Print the final message once all threads have finished
+    std::cout << "All threads have finished finding number.\n";
 
     return 0;
 }
