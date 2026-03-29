@@ -45,7 +45,7 @@ class MemoryManager {
         // Updates the allocation algorithm used by the manager
         void setAllocator(std::function<int(int,void*)> allocator);
         // Writes the list of current holes to a file using POSIX calls
-        int dummpMemoryMap(char* filename);
+        int dumpMemoryMap(char* filename);
         // Returns a little-endian array containing hole offsets and lengths
         void* getList();
         // Returns a little-endian bit-stream array where 1 us used memory and 0 is free

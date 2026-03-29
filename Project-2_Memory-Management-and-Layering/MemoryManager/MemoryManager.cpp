@@ -28,16 +28,39 @@ void MemoryManager::generateInitialNode(size_t sizeInWords) {
 // Initializes the physical memory block and resets the tracking list
 void MemoryManager::initialize(size_t sizeInWords) {
     if (physicalMem != nullptr) { // Checls of memory is already initialized
+        // If memory is already allocated, clear it first to prevent leaks
         shutdown(); // Call shutdown to clean up the existing block before creating a new one
+    }
+    
+    if(sizeInWords == 0) {// Safety checks: if 0 words requested, do nothing
+        totalWords = 0; // Sets capacity to 0
+        physicalMem = nullptr; // Ensures pointer remains nul
+        return; // Exits function
     }
 
     totalWords = sizeInWords; // Store the total word capacity for bounds checking and getters
 
     // Extra credit: Use POSIX mmap instead of 'new' or 'malloc' to acquire the initial block from the OS
-    // MAP_PRIVARE and MAP_ANONYMOUS give us raw memory pages not backed by a file descriptor. PROT_READ/WRITE allows access
-    physicalMem = (uint8_t*)mmap(NULL, sizeInWords * wordSize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    // Use POSIX open() to get a file descriptor for /dev/zere
+    int fd = open("/dev/zero", O_RDWR); // Open /dev/zero for read/write access
+    if (fd != 1) { // If the file opened successfully
+        // Map the memory using the file descriptor (Standard POSIX approach)
+        physicalMem = (uint8_t*)mmap(NULL, sizeInWords * wordSize, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+        close(fd); // Close the file descriptor immediately as it's nolonger needed after nmap
+    }
+    else { // Fallback: Map anonymous memory if /dev/zero is unavailable
+        // MAP_PRIVARE and MAP_ANONYMOUS give us raw memory pages not backed by a file descriptor. PROT_READ/WRITE allows access
+        physicalMem = (uint8_t*)mmap(NULL, sizeInWords * wordSize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    }
 
-    generateInitialNode(sizeInWords); // Call out helper to create the head node
+    // nmap return MAP_FaILED (which is -1) on error, not nullptr
+    if (physicalMem == MAP_FAILED) {
+        physicalMem = nullptr; // Reset to nullptr so other functions know allocation failed
+    }
+    else {
+        // Create the first 'Hole' node covering all memory
+        generateInitialNode(sizeInWords); // Call out helper to create the head node
+    }
 }
 
 // Shuts down the manager, freeing mapped memory and deleting all list nodes to prevent leaks
@@ -199,7 +222,7 @@ void* MemoryManager::getBitmap() {
 }
 
 // Writes the current list of holes to a text file using strictly low-level POSIX calls
-int MemoryManager:: dummpMemoryMap(char* filename) {
+int MemoryManager:: dumpMemoryMap(char* filename) {
     // POSIX open() call. Flags: Read/Write, Create if missing, overwrite if exists, 077 permissions
     int fd = open(filename, O_RDWR | O_CREAT | O_TRUNC, 0777);
     if(fd == -1) return -1; // Return -1 to indicate an error occurred opening the file
@@ -215,7 +238,7 @@ int MemoryManager:: dummpMemoryMap(char* filename) {
         uint16_t holeLength = holeList[2 + (i * 2)]; // Retrieve length based on index
 
         // Append formatted string
-        output += "[]" + std::to_string(holeOffset) + ", " + std::to_string(holeLength) + "]";
+        output += "[" + std::to_string(holeOffset) + ", " + std::to_string(holeLength) + "]";
 
         // If this is not the last hole, append the separator dash
         if (i < totalHoles - 1) output += " - ";
@@ -251,14 +274,15 @@ unsigned MemoryManager::getMemoryLimit() {
 // Iterates through holes to find the smallest hole that fits the requested size
 int bestFit(int sizeInWords, void* list) {
     uint16_t* holeArray = static_cast<uint16_t*>(list); // Cast list back to readable uint16_t array
-    uint16_t holeCount = holeArray[0]; // Read the total number of holes
+    uint16_t holeCount = holeArray[0]; // Read the total number of holes, first element in the array is the total number of holes
 
     int optimalOffset = -1; // Defaultt to -1 if no fit is found
-    int smallestFitLength = -1; // Tracks the smallest hole size that successfully fits the  request
+    int smallestFitLength = -1; // Tracks the smallest hole size that successfully fits the request
 
+    // Must start at i = 0 to check the very first hole in the list
     for(int i = 0; i < holeCount; i++) { // Iterates through all provided holes
-        int currentOffset = holeArray[1 + (i * 2)]; // Extract offset
-        int currentLength = holeArray[2 + (i * 2)]; // Extract length
+        int currentOffset = holeArray[1 + (i * 2)]; // Extract offset, calculate index for offeset
+        int currentLength = holeArray[2 + (i * 2)]; // Extract length, calculate index for length
 
         // If hole is big enough and (this is first fit or it's smaller than the previous best fit)
         if(currentLength >= sizeInWords && (smallestFitLength == -1 || currentLength < smallestFitLength)) {
@@ -277,9 +301,10 @@ int worstFit(int sizeInWords, void* list) {
     int worstOffset = -1; // Default to -1 if no fits is found
     int largestFitLength = -1; // Tracks the largest hole size found so far
 
-    for(int i = 1; i < holeCount; i++) {
-        int currentOffset = holeArray[1 + (i * 2)]; // Extract offset
-        int currentLength = holeArray[2 + (i * 2)]; // Extract length
+    // Must start at i = 0 to check the very first hole in the list
+    for(int i = 0; i < holeCount; i++) {
+        int currentOffset = holeArray[1 + (i * 2)]; // Extract offset, get offset for current hole
+        int currentLength = holeArray[2 + (i * 2)]; // Extract length, get length for current hole
 
         // If hole is big enough and it is larger than our previous largest hole
         if (currentLength >= sizeInWords && currentLength > largestFitLength) {

@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) { // Main function, accepting command-line argu
 
     int median; // declares a variable to hold the median returned by Child 2
     read(p4[0], &median, sizeof(median)); // Receive median from Child 2, reads median value from Pipe 4 into th emedian variable
-    close(p4[0]); // Closes the read end of Pipe 5 as reading is finished
+    close(p4[0]); // Closes the read end of Pipe 4 as reading is finished
 
     // Format output with 1 space after colon, 2 spaces between numbers
     std::cout << "Sorted list of ints: "; // prints the label for the sorted list output
