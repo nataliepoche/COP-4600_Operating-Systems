@@ -9,7 +9,7 @@ TARGETS = wallserver
 # The default target that runs when you just type 'make' in the console
 all: $(TARGETS)
 
-wallserver: server.cpp
+wallserver: server.cpp Messages.h
 	$(CXX) $(CXXFLAGS) server.cpp -o wallserver
 
 # client: client.cpp
