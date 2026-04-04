@@ -51,7 +51,7 @@ class MemoryManager {
         // Returns a little-endian bit-stream array where 1 us used memory and 0 is free
         void* getBitmap();
         // Returns the native word size defined at construction
-        unsigned getWordSize();
+        unsigned getWordSize();z
         // Returns the starting memroy address of the physical memory block
         void* getMemoryStart();
         // Returns the total cpacity of the memory block in bytes
