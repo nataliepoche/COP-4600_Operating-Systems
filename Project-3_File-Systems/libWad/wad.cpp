@@ -4,6 +4,7 @@
 #include <cstring> // Include C string utilities like strcmp, memcpy
 #include <iostream> // Include input/output stream library
 #include <regex> // Include standard regex library to detect Map Markers
+#include <vector>
 
 Wad* Wad::loadWad(const string &path) { // Implement the static factory method
     return new Wad(path); // Dynamically allocate a new Wad instance and return it
@@ -211,13 +212,13 @@ void Wad::extractFileName(const string &path, string &parentPath, string &fileNa
         cleanPath.pop_back();
     }
     
-    size_t lastSlash = path.find_last_of('/'); // Find the position of the last slash
+    size_t lastSlash = cleanPath.find_last_of('/'); // Find the position of the last slash
     if (lastSlash == 0) { // If the slash is at the very beginning
         parentPath = "/"; // The parent is the root
-        fileName = path.substr(1); // The file name is everything after the slash
+        fileName = cleanPath.substr(1); // The file name is everything after the slash
     } else { // Otherwise, it's nested
-        parentPath = path.substr(0, lastSlash); // Extract everything before the last slash
-        fileName = path.substr(lastSlash + 1); // Extract everything after the last slash
+        parentPath = cleanPath.substr(0, lastSlash); // Extract everything before the last slash
+        fileName = cleanPath.substr(lastSlash + 1); // Extract everything after the last slash
     } // End of slash conditional
 } // End of extractFileName
 
@@ -249,6 +250,9 @@ void Wad::createDirectory(const string &path) { // Implement createDirectory
     string parentPath, dirName; // Strings to hold the split path components
     extractFileName(path, parentPath, dirName); // Split the path into parent and target name
     
+    // Check constraint: Namespace markers max 2 chars length limit
+    if (dirName.length() > 2) return;
+
     Node* parentNode = findNode(parentPath); // Locate the parent directory node
     if (!parentNode || !parentNode->isDir) return; // Abort if parent is invalid
 
