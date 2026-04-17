@@ -1,0 +1,20 @@
+cd libWad/ && make && cd .. && tar zxvf P3_Files.tar.gz && tar zxvf P3_LibraryTestSuite.tgz
+
+g++ -o wad_dump wad_dump.cpp -I./libWad -L./libWad -lWad
+./wad_dump sample1.wad > my_sample1_dump.txt
+./wad_dump DOOM1.WAD > my_DOOM1_dump.txt
+diff my_sample1_dump.txt sample1_dump.txt
+
+sudo chmod +x ./run_libtest.sh
+sudo ./run_libtest.sh
+
+cd wadfs && mkdir mnt
+./wadfs -s ../sample1.wad ./mnt
+ls -la ./mnt
+cat ./mnt/mp.txt
+mkdir ./mnt/newdir
+cp ../cat.jpg ./mnt/
+cp ./mnt/Gl/ad/os/cake.jpg ../my_cake.jpg
+fusermount -u ./mnt
+
+cd libWad/ && make && cd .. && tar zxvf P3_Files.tar.gz && tar zxvf P3_LibraryTestSuite.tgz && sudo chmod +x ./run_libtest.sh && sudo ./run_libtest.sh

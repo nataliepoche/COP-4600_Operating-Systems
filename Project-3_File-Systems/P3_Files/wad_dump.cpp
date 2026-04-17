@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Wad.h"
+#include "libWad/Wad.h"
 
 using namespace std;
 
